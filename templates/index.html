@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% block title %}Tester Edition — Perfumes Originales | San Juan, Argentina{% endblock %}
+ 
+{% block fullpage %}
+ 
+<!-- HERO -->
+<section id="hero">
+    <div class="hero-bg" id="heroBg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-particles" id="particles"></div>
+    <div class="hero-content">
+        <div class="hero-eyebrow">San Juan, Argentina</div>
+        <h1 class="hero-title">El lujo en<br><span class="italic-gold">cada frasco.</span></h1>
+        <div class="hero-sep"><span class="hero-sep-line"></span><span class="hero-sep-diamond"></span><span class="hero-sep-line"></span></div>
+        <p class="hero-subtitle">Perfumes de Diseñador <span class="dot">•</span> Árabes <span class="dot">•</span> Nicho<br>100% Originales Garantizados</p>
+        <div class="hero-ctas">
+            <a href="#catalogo" class="btn-gold">Ver catálogo</a>
+            <a href="https://wa.me/542646315621?text=Hola!%20Quiero%20consultar%20sobre%20sus%20perfumes." target="_blank" rel="noopener" class="btn-outline">Consultá por WhatsApp</a>
+        </div>
+    </div>
+    <div class="scroll-hint">Scroll</div>
+</section>
+ 
+<!-- ABOUT -->
+<section id="about">
+    <div class="container">
+        <div class="about-grid">
+            <div class="about-body">
+                <div class="s-label reveal">Sobre nosotros</div>
+                <h2 class="s-title reveal">Fragancias que <em>cuentan historias</em></h2>
+                <div class="ornament reveal"><span class="ornament-line"></span><span class="ornament-diamond"></span></div>
+                <p class="s-desc reveal">En Tester Edition nos especializamos en perfumes originales de las mejores casas del mundo. Diseñador, Árabes y Nicho — seleccionamos cada fragancia con criterio y pasión, garantizando autenticidad absoluta en cada frasco.</p>
+                <p class="s-desc reveal" style="margin-top:1rem;">Desde San Juan llevamos el lujo olfativo a todo el país, con atención personalizada y envíos seguros a domicilio.</p>
+                <div class="about-badge reveal">Solo productos originales</div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card reveal-right d1"><div class="stat-num" data-count="2400" data-suffix="+">0</div><div class="stat-lbl">Seguidores en Instagram</div></div>
+                <div class="stat-card reveal-right d2"><div class="stat-num" data-count="100" data-suffix="%">0</div><div class="stat-lbl">Productos originales</div></div>
+                <div class="stat-card reveal-right d3"><div class="stat-num" data-nocount style="font-size:1.6rem;">Todo el país</div><div class="stat-lbl">Envíos disponibles</div></div>
+            </div>
+        </div>
+    </div>
+</section>
+ 
+<!-- CATÁLOGO -->
+<section id="catalogo">
+    <div class="container">
+        <div class="s-label reveal">Catálogo</div>
+        <h2 class="s-title reveal">Nuestras <em>fragancias</em></h2>
+        <div class="ornament reveal"><span class="ornament-line"></span><span class="ornament-diamond"></span></div>
+ 
+        <form class="search-wrap" method="GET" action="/#catalogo">
+            <input type="text" name="buscar" placeholder="Buscar perfume..." value="{{ busqueda }}">
+            <button type="submit">Buscar</button>
+        </form>
+        {% if busqueda %}<a class="link-reset" href="/">✕ Mostrar todos</a>{% endif %}
+ 
+        {% macro tarjeta(perfume) %}
+        <div class="perf-card reveal">
+            {% if perfume.imagen %}
+            <a href="/perfume/{{ perfume.id }}">
+                <img src="{{ url_for('static', filename='img/' + perfume.imagen) }}" alt="{{ perfume.nombre }}">
+            </a>
+            {% endif %}
+            <div class="perf-body">
+                <div class="perf-cat">{{ perfume.categoria }}</div>
+                <div class="perf-nombre"><a href="/perfume/{{ perfume.id }}">{{ perfume.nombre }}</a></div>
+                {% if perfume.nota_salida %}<div class="perf-notas">🌿 {{ perfume.nota_salida }}</div>{% endif %}
+                <div class="perf-precio">${{ "%.0f"|format(perfume.precio) }}</div>
+                {% if perfume.stock > 0 and not perfume.agotado %}
+                    <div class="perf-stock">Stock: {{ perfume.stock }}</div>
+                    <a href="/agregar_carrito/{{ perfume.id }}" class="btn-comprar">Agregar al carrito</a>
+                {% else %}
+                    <span class="perf-agotado">— Agotado —</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endmacro %}
+ 
+        {% macro seccion(titulo, lista, vacio) %}
+        {% if lista or not busqueda %}
+        <div class="cat-section">
+            <span class="cat-label">{{ titulo }}</span>
+            <div class="cat-ornament"><span class="cat-ornament-line"></span><span class="cat-ornament-diamond"></span></div>
+            {% if lista %}
+                <div class="perfumes-grid">{% for p in lista %}{{ tarjeta(p) }}{% endfor %}</div>
+            {% else %}
+                <p style="color:var(--muted);font-size:.85rem;">{{ vacio }}</p>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% endmacro %}
+ 
+        {{ seccion('Perfumes Nicho', nicho, 'No hay perfumes nicho cargados.') }}
+        {{ seccion('Perfumes Diseñador', diseñador, 'No hay perfumes diseñador cargados.') }}
+        {{ seccion('Perfumes Árabes', arabes, 'No hay perfumes árabes cargados.') }}
+        {{ seccion('Testers', tester, 'No hay testers cargados.') }}
+        {{ seccion('Decants', decant, 'No hay decants cargados.') }}
+    </div>
+</section>
+ 
+<!-- WHY -->
+<section id="why">
+    <div class="container">
+        <div class="s-label reveal">Por qué elegirnos</div>
+        <h2 class="s-title reveal">La diferencia está en <em>los detalles</em></h2>
+        <div class="why-grid">
+            <div class="why-item reveal d1"><div class="why-icon-wrap">🛡️</div><div class="why-title">100% Originales</div><p class="why-desc">Solo trabajamos con productos auténticos. Tu inversión merece la fragancia real.</p></div>
+            <div class="why-item reveal d2"><div class="why-icon-wrap">📦</div><div class="why-title">Envíos a todo el país</div><p class="why-desc">Despachamos a cualquier rincón de Argentina. El lujo llega a tu puerta.</p></div>
+            <div class="why-item reveal d3"><div class="why-icon-wrap">💳</div><div class="why-title">Cuotas con tarjeta</div><p class="why-desc">Pagá en cuotas para que el lujo no sea un obstáculo. Consultá opciones.</p></div>
+            <div class="why-item reveal d4"><div class="why-icon-wrap">💬</div><div class="why-title">Atención personalizada</div><p class="why-desc">Te asesoramos por WhatsApp para encontrar la fragancia perfecta para vos.</p></div>
+        </div>
+    </div>
+</section>
+ 
+<!-- BRANDS -->
+<section id="brands">
+    <div class="container">
+        <div class="s-label reveal" style="text-align:center;">Marcas que trabajamos</div>
+        <h2 class="s-title reveal" style="text-align:center;">Lo mejor de la <em>perfumería mundial</em></h2>
+        <div class="ornament reveal" style="justify-content:center;"><span class="ornament-line"></span><span class="ornament-diamond"></span></div>
+        <div class="brands-grid">
+            <div class="brand-cell reveal d1"><span class="brand-name">Yves Saint Laurent</span></div>
+            <div class="brand-cell reveal d2"><span class="brand-name">Jean Paul Gaultier</span></div>
+            <div class="brand-cell reveal d3"><span class="brand-name">Issey Miyake</span></div>
+            <div class="brand-cell reveal d4"><span class="brand-name">Montale</span></div>
+            <div class="brand-cell reveal d5"><span class="brand-name">Chanel</span></div>
+            <div class="brand-cell reveal d1"><span class="brand-name">Dior</span></div>
+            <div class="brand-cell reveal d2"><span class="brand-name">Versace</span></div>
+            <div class="brand-cell reveal d3"><span class="brand-name">Giorgio Armani</span></div>
+            <div class="brand-cell reveal d4"><span class="brand-name">Paco Rabanne</span></div>
+            <div class="brand-cell reveal d5"><span class="brand-name">Carolina Herrera</span></div>
+        </div>
+    </div>
+</section>
+ 
+<!-- CONTACT -->
+<section id="contact">
+    <div class="container">
+        <div class="contact-inner">
+            <div class="s-label reveal">Contacto</div>
+            <h2 class="s-title reveal">¿Encontraste tu <em>fragancia?</em></h2>
+            <p class="s-desc reveal">Escribinos y te respondemos rápido. Te asesoramos sin compromiso.</p>
+            <div class="reveal">
+                <a href="https://wa.me/542646315621?text=Hola!%20Quiero%20consultar%20sobre%20sus%20perfumes." target="_blank" rel="noopener" class="wa-cta">
+                    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.549 4.122 1.512 5.861L0 24l6.281-1.499A11.94 11.94 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.663-.516-5.178-1.415l-.371-.22-3.73.89.921-3.64-.244-.382A9.962 9.962 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+                    Escribinos al WhatsApp
+                </a>
+            </div>
+            <div class="contact-meta reveal">
+                <div class="meta-item"><span class="meta-label">Ubicación</span><span class="meta-value">San Juan, Argentina</span></div>
+                <div class="meta-item"><span class="meta-label">Instagram</span><span class="meta-value"><a href="https://www.instagram.com/perfumes_tester4" target="_blank">@perfumes_tester4</a></span></div>
+                <div class="meta-item"><span class="meta-label">Envíos</span><span class="meta-value">Todo el país</span></div>
+                <div class="meta-item"><span class="meta-label">Pago</span><span class="meta-value">Cuotas con tarjeta</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+ 
+{% endblock %}
+ 
+{% block extra_js %}
+// Particles
+(function(){const c=document.getElementById('particles');if(!c)return;for(let i=0;i<28;i++){const p=document.createElement('div');p.className='particle';const s=1+Math.random()*2.5;p.style.cssText=['left:'+(Math.random()*100)+'%','width:'+s+'px','height:'+s+'px','--dur:'+(6+Math.random()*9)+'s','--delay:'+(Math.random()*10)+'s','--op:'+(0.25+Math.random()*0.55)].join(';');c.appendChild(p);}})();
+// Parallax hero
+const hb=document.getElementById('heroBg');
+window.addEventListener('scroll',()=>{if(scrollY<innerHeight&&hb)hb.style.transform='translateY('+(scrollY*.38)+'px)';},{passive:true});
+{% endblock %}

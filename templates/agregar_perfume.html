@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Agregar Perfume — Admin{% endblock %}
+{% block content %}
+<div class="form-card" style="max-width:620px;">
+    <span class="s-label">Panel Admin</span>
+    <h2>Nuevo Perfume</h2>
+    <div class="ornament"><span class="ornament-line"></span><span class="ornament-diamond"></span></div>
+    <form method="POST" enctype="multipart/form-data">
+        <div class="form-grid">
+            <div class="form-group full">
+                <label>Nombre</label>
+                <input type="text" name="nombre" placeholder="Ej: Sauvage 100ml" required>
+            </div>
+            <div class="form-group">
+                <label>Categoría</label>
+                <select name="categoria" required>
+                    <option value="" disabled selected>Seleccionar...</option>
+                    <option value="Nicho">Nicho</option>
+                    <option value="Diseñador">Diseñador</option>
+                    <option value="Arabes">Árabes</option>
+                    <option value="Tester">Tester</option>
+                    <option value="Decant">Decant</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Precio ($)</label>
+                <input type="number" name="precio" placeholder="Ej: 25000" required>
+            </div>
+            <div class="form-group full">
+                <label>Notas de Salida</label>
+                <input type="text" name="salida" placeholder="Ej: bergamota, limón, pimienta">
+            </div>
+            <div class="form-group full">
+                <label>Notas de Corazón</label>
+                <input type="text" name="corazon" placeholder="Ej: lavanda, geranio">
+            </div>
+            <div class="form-group full">
+                <label>Notas de Fondo</label>
+                <input type="text" name="fondo" placeholder="Ej: ámbar, cedro, almizcle">
+            </div>
+            <div class="form-group">
+                <label>Stock</label>
+                <input type="number" name="stock" value="1">
+            </div>
+            <div class="form-group">
+                <label>Imagen</label>
+                <input type="file" name="imagen" accept="image/*" required>
+            </div>
+        </div>
+        <button type="submit" class="btn-submit">Guardar Perfume</button>
+    </form>
+    <a href="/panel" class="form-back">← Volver al panel</a>
+</div>
+{% endblock %}

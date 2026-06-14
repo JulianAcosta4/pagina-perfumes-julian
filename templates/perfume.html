@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}{{ perfume.nombre }} — Tester Edition{% endblock %}
+ 
+{% block content %}
+<div style="margin-bottom:1.5rem;">
+    <a href="/" class="btn btn-outline">← Volver al catálogo</a>
+</div>
+ 
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start;">
+    <div>
+        {% if perfume.imagen %}
+        <img src="{{ url_for('static', filename='img/' + perfume.imagen) }}"
+             style="width:100%;border-radius:2px;border:1px solid var(--border);">
+        {% endif %}
+    </div>
+    <div>
+        <span class="s-label">{{ perfume.categoria }}</span>
+        <h1 style="font-family:var(--serif);font-size:clamp(1.6rem,3vw,2.4rem);color:var(--cream);margin-bottom:0.5rem;font-weight:600;line-height:1.15;">
+            {{ perfume.nombre }}
+        </h1>
+        <div class="ornament"><span class="ornament-line"></span><span class="ornament-diamond"></span></div>
+ 
+        <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:2px;padding:1.5rem;margin-bottom:1.8rem;">
+            <div style="font-size:0.62rem;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;">Pirámide Olfativa</div>
+            {% if perfume.nota_salida %}
+            <p style="margin-bottom:0.8rem;"><span style="font-size:0.65rem;color:var(--muted);letter-spacing:0.2em;text-transform:uppercase;display:block;margin-bottom:0.2rem;">Salida</span>{{ perfume.nota_salida }}</p>
+            {% endif %}
+            {% if perfume.nota_corazon %}
+            <p style="margin-bottom:0.8rem;"><span style="font-size:0.65rem;color:var(--muted);letter-spacing:0.2em;text-transform:uppercase;display:block;margin-bottom:0.2rem;">Corazón</span>{{ perfume.nota_corazon }}</p>
+            {% endif %}
+            {% if perfume.nota_fondo %}
+            <p><span style="font-size:0.65rem;color:var(--muted);letter-spacing:0.2em;text-transform:uppercase;display:block;margin-bottom:0.2rem;">Fondo</span>{{ perfume.nota_fondo }}</p>
+            {% endif %}
+        </div>
+ 
+        <div style="font-family:var(--serif);font-size:2.2rem;color:var(--gold);font-weight:700;margin-bottom:0.5rem;">${{ "%.0f"|format(perfume.precio) }}</div>
+ 
+        {% if perfume.stock > 0 and not perfume.agotado %}
+            <p style="color:var(--muted);font-size:0.78rem;margin-bottom:1.2rem;">Stock disponible: {{ perfume.stock }}</p>
+            <a href="/agregar_carrito/{{ perfume.id }}" class="btn btn-gold" style="max-width:260px;">Agregar al carrito</a>
+        {% else %}
+            <p style="color:var(--muted);font-size:0.75rem;letter-spacing:0.25em;text-transform:uppercase;">— Agotado —</p>
+        {% endif %}
+    </div>
+</div>
+ 
+<style>
+@media(max-width:640px){
+    div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important;}
+}
+</style>
+{% endblock %}

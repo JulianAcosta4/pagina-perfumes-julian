@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Panel Admin — Tester Edition{% endblock %}
+{% block content %}
+ 
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:2rem;">
+    <div>
+        <span class="s-label">Panel</span>
+        <h1 class="section-title" style="margin-top:0.2rem;">Administrador</h1>
+    </div>
+    <div style="display:flex;gap:0.8rem;flex-wrap:wrap;">
+        <a href="/agregar_perfume" class="btn btn-gold" style="display:inline-block;width:auto;padding:0.6rem 1.4rem;">+ Agregar Perfume</a>
+        <a href="/" class="btn btn-outline">Ver Tienda</a>
+        <a href="/logout" style="color:var(--muted);text-decoration:none;font-size:0.78rem;align-self:center;letter-spacing:0.05em;">Salir</a>
+    </div>
+</div>
+ 
+{% set agotados = perfumes | selectattr('agotado') | list %}
+{% set stock_bajo = perfumes | selectattr('stock', 'lt', 3) | selectattr('agotado', 'equalto', false) | list %}
+{% if agotados %}
+<div class="alert alert-warning">⚠️ <strong>Agotados:</strong> {{ agotados | map(attribute='nombre') | join(', ') }}</div>
+{% endif %}
+{% if stock_bajo %}
+<div class="alert alert-info">📦 <strong>Stock bajo (menos de 3):</strong> {{ stock_bajo | map(attribute='nombre') | join(', ') }}</div>
+{% endif %}
+ 
+{% if perfumes %}
+<div style="overflow-x:auto;border:1px solid var(--border);border-radius:2px;">
+<table class="admin-table">
+    <thead>
+        <tr>
+            <th>ID</th><th>Imagen</th><th>Nombre</th><th>Categoría</th>
+            <th>Precio</th><th>Stock</th><th>Estado</th><th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for perfume in perfumes %}
+        <tr>
+            <td style="color:var(--muted);">{{ perfume.id }}</td>
+            <td>
+                {% if perfume.imagen %}
+                <img src="{{ url_for('static', filename='img/' + perfume.imagen) }}"
+                     style="width:55px;height:55px;object-fit:cover;border-radius:2px;border:1px solid var(--border);">
+                {% else %}<span style="color:var(--muted);">—</span>{% endif %}
+            </td>
+            <td style="font-family:var(--serif);font-weight:600;">{{ perfume.nombre }}</td>
+            <td><span style="font-size:0.68rem;color:var(--gold);letter-spacing:0.15em;text-transform:uppercase;">{{ perfume.categoria }}</span></td>
+            <td style="font-family:var(--serif);">${{ "%.0f"|format(perfume.precio) }}</td>
+            <td>{{ perfume.stock }}</td>
+            <td>
+                {% if perfume.agotado or perfume.stock == 0 %}
+                    <span class="badge-agotado">Agotado</span>
+                {% elif perfume.stock < 3 %}
+                    <span class="badge-bajo">Stock bajo</span>
+                {% else %}
+                    <span class="badge-ok">Disponible</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="/editar_perfume/{{ perfume.id }}" class="btn btn-outline" style="padding:0.3rem 0.8rem;font-size:0.7rem;margin-right:0.5rem;">Editar</a>
+                <a href="/eliminar_perfume/{{ perfume.id }}"
+                   onclick="return confirm('¿Eliminar {{ perfume.nombre }}?')"
+                   style="color:#f44336;text-decoration:none;font-size:0.75rem;letter-spacing:0.05em;">Eliminar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% else %}
+<div style="text-align:center;padding:3rem;color:var(--muted);">
+    No hay perfumes. <a href="/agregar_perfume" style="color:var(--gold);">Agregar el primero</a>
+</div>
+{% endif %}
+{% endblock %}

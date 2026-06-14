@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Editar Perfume — Admin{% endblock %}
+{% block content %}
+<div class="form-card" style="max-width:620px;">
+    <span class="s-label">Panel Admin</span>
+    <h2>Editar Perfume</h2>
+    <div class="ornament"><span class="ornament-line"></span><span class="ornament-diamond"></span></div>
+ 
+    <form method="POST" enctype="multipart/form-data">
+        <div class="form-grid">
+            <div class="form-group full">
+                <label>Nombre</label>
+                <input type="text" name="nombre" value="{{ perfume.nombre }}" required>
+            </div>
+            <div class="form-group">
+                <label>Categoría</label>
+                <select name="categoria" required>
+                    {% for cat in ['Nicho', 'Diseñador', 'Arabes', 'Tester', 'Decant'] %}
+                    <option value="{{ cat }}" {% if perfume.categoria == cat %}selected{% endif %}>
+                        {{ 'Árabes' if cat == 'Arabes' else cat }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Precio ($)</label>
+                <input type="number" name="precio" value="{{ perfume.precio }}" required>
+            </div>
+            <div class="form-group full">
+                <label>Notas de Salida</label>
+                <input type="text" name="salida" value="{{ perfume.nota_salida or '' }}">
+            </div>
+            <div class="form-group full">
+                <label>Notas de Corazón</label>
+                <input type="text" name="corazon" value="{{ perfume.nota_corazon or '' }}">
+            </div>
+            <div class="form-group full">
+                <label>Notas de Fondo</label>
+                <input type="text" name="fondo" value="{{ perfume.nota_fondo or '' }}">
+            </div>
+            <div class="form-group">
+                <label>Stock</label>
+                <input type="number" name="stock" value="{{ perfume.stock }}">
+            </div>
+            <div class="form-group">
+                <label>Imagen actual</label>
+                {% if perfume.imagen %}
+                    <img src="{{ url_for('static', filename='img/' + perfume.imagen) }}"
+                         style="width:100%;height:120px;object-fit:cover;border-radius:2px;border:1px solid var(--border);">
+                {% else %}
+                    <p style="color:var(--muted);font-size:0.8rem;">Sin imagen</p>
+                {% endif %}
+            </div>
+            <div class="form-group full">
+                <label>Nueva imagen (opcional)</label>
+                <input type="file" name="imagen" accept="image/*">
+                <p style="color:var(--muted);font-size:0.75rem;margin-top:0.3rem;">Dejá vacío para mantener la imagen actual.</p>
+            </div>
+        </div>
+        <button type="submit" class="btn-submit">Guardar Cambios</button>
+    </form>
+ 
+    <a href="/panel" class="form-back">← Volver al panel</a>
+</div>
+{% endblock %}

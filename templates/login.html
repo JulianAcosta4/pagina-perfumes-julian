@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Administrador — Tester Edition{% endblock %}
+{% block content %}
+<div class="form-card">
+    <span class="s-label">Acceso restringido</span>
+    <h2>Administrador</h2>
+    <div class="ornament"><span class="ornament-line"></span><span class="ornament-diamond"></span></div>
+    <form method="POST">
+        <div class="form-group">
+            <label>Correo</label>
+            <input type="email" name="correo" placeholder="admin@gmail.com" required>
+        </div>
+        <div class="form-group">
+            <label>Contraseña</label>
+            <input type="password" name="clave" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn-submit">Ingresar</button>
+    </form>
+    <a href="/" class="form-back">← Volver a la tienda</a>
+</div>
+{% endblock %}

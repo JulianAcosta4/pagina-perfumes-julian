@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Finalizar Pedido — Tester Edition{% endblock %}
+{% block content %}
+<div class="form-card">
+    <span class="s-label">Último paso</span>
+    <h2>Finalizar Pedido</h2>
+    <div class="ornament"><span class="ornament-line"></span><span class="ornament-diamond"></span></div>
+    <p style="color:var(--muted);font-size:0.85rem;margin-bottom:1.5rem;">Completá tus datos y te enviamos el resumen por WhatsApp.</p>
+    <form action="/enviar_whatsapp" method="POST">
+        <div class="form-group">
+            <label>Tu nombre</label>
+            <input type="text" name="cliente" placeholder="Ej: Juan García" required>
+        </div>
+        <div class="form-group">
+            <label>Tu teléfono</label>
+            <input type="text" name="telefono" placeholder="Ej: 2645001122" required>
+        </div>
+        <button type="submit" class="btn-submit">📲 Enviar pedido por WhatsApp</button>
+    </form>
+    <a href="/carrito" class="form-back">← Volver al carrito</a>
+</div>
+{% endblock %}
+ 

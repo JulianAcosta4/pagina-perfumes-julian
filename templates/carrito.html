@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Carrito — Tester Edition{% endblock %}
+ 
+{% block content %}
+<span class="s-label">Tu selección</span>
+<h1 class="section-title" style="margin-top:0.2rem;">Carrito de <em>compras</em></h1>
+<div class="ornament"><span class="ornament-line"></span><span class="ornament-diamond"></span></div>
+ 
+{% if perfumes %}
+<div style="display:grid;grid-template-columns:1fr 300px;gap:2rem;align-items:start;">
+    <div>
+        {% for item in perfumes %}
+        <div style="display:flex;gap:1.2rem;background:var(--surface-1);border:1px solid var(--border);border-radius:2px;padding:1rem;margin-bottom:1rem;align-items:center;">
+            {% if item.perfume.imagen %}
+            <img src="{{ url_for('static', filename='img/' + item.perfume.imagen) }}"
+                 style="width:75px;height:75px;object-fit:cover;border-radius:2px;flex-shrink:0;">
+            {% endif %}
+            <div style="flex:1;">
+                <div style="font-family:var(--serif);font-weight:600;color:var(--cream);">{{ item.perfume.nombre }}</div>
+                <div style="font-size:0.65rem;color:var(--gold);letter-spacing:0.2em;text-transform:uppercase;">{{ item.perfume.categoria }}</div>
+                <div style="color:var(--muted);font-size:0.82rem;">${{ "%.0f"|format(item.perfume.precio) }} c/u</div>
+            </div>
+            <div style="text-align:center;padding:0 0.5rem;">
+                <div style="font-size:0.62rem;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;">Cant.</div>
+                <div style="font-family:var(--serif);font-size:1.3rem;color:var(--cream);">{{ item.cantidad }}</div>
+            </div>
+            <div style="text-align:right;min-width:90px;">
+                <div style="font-family:var(--serif);color:var(--gold);font-weight:700;font-size:1.1rem;">${{ "%.0f"|format(item.subtotal) }}</div>
+                <a href="/eliminar_carrito/{{ item.perfume.id }}"
+                   style="font-size:0.72rem;color:var(--muted);text-decoration:none;letter-spacing:0.05em;">✕ Quitar</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+ 
+    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:2px;padding:1.8rem;position:sticky;top:80px;">
+        <div style="font-size:0.62rem;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold);margin-bottom:1.2rem;">Resumen</div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1.5rem;padding-bottom:1.2rem;border-bottom:1px solid var(--border);">
+            <span style="color:var(--muted);font-size:0.85rem;">Total</span>
+            <span style="font-family:var(--serif);font-size:1.6rem;color:var(--gold);font-weight:700;">${{ "%.0f"|format(total) }}</span>
+        </div>
+        <a href="/finalizar_pedido" class="btn btn-gold" style="padding:0.85rem;font-size:0.8rem;">Finalizar Pedido</a>
+        <a href="/" class="form-back" style="margin-top:1rem;">← Seguir comprando</a>
+    </div>
+</div>
+ 
+<style>
+@media(max-width:700px){div[style*="grid-template-columns:1fr 300px"]{grid-template-columns:1fr!important;}}
+</style>
+ 
+{% else %}
+<div style="text-align:center;padding:5rem 0;">
+    <div style="font-size:3rem;margin-bottom:1rem;">🛒</div>
+    <h2 style="font-family:var(--serif);color:var(--muted);margin-bottom:1.5rem;font-weight:400;">Tu carrito está vacío</h2>
+    <a href="/" class="btn btn-gold" style="display:inline-block;width:auto;padding:0.8rem 2.5rem;">Ver catálogo</a>
+</div>
+{% endif %}
+{% endblock %}
