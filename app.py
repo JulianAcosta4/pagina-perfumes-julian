@@ -1,28 +1,27 @@
 from flask import Flask, render_template, request, redirect, session, flash
 import os
-from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash
 from urllib.parse import quote
- 
+
 app = Flask(__name__)
- 
+
 app.config['SECRET_KEY'] = 'perfumetester4'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///perfumes.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///perfumes.db').replace('postgres://', 'postgresql://')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
- 
+
 from models import *
- 
+
 db.init_app(app)
- 
- 
+
+
 # ════════════════════════════════════════════════════════════
 #  RUTAS PÚBLICAS
 # ════════════════════════════════════════════════════════════
- 
+
 @app.route('/')
 def inicio():
     busqueda = request.args.get('buscar', '')
- 
+
     if busqueda:
         todos = Perfume.query.filter(Perfume.nombre.contains(busqueda)).all()
         nicho     = [p for p in todos if p.categoria == 'Nicho']
@@ -36,10 +35,10 @@ def inicio():
         arabes    = Perfume.query.filter_by(categoria='Arabes').all()
         tester    = Perfume.query.filter_by(categoria='Tester').all()
         decant    = Perfume.query.filter_by(categoria='Decant').all()
- 
+
     carrito = session.get('carrito', {})
     cantidad_carrito = sum(carrito.values())
- 
+
     return render_template(
         'index.html',
         nicho=nicho, diseñador=diseñador, arabes=arabes,
@@ -47,20 +46,20 @@ def inicio():
         cantidad_carrito=cantidad_carrito,
         busqueda=busqueda
     )
- 
- 
+
+
 @app.route('/perfume/<int:id>')
 def detallePerfume(id):
     perfume = Perfume.query.get_or_404(id)
     carrito = session.get('carrito', {})
     cantidad_carrito = sum(carrito.values())
     return render_template('perfume.html', perfume=perfume, cantidad_carrito=cantidad_carrito)
- 
- 
+
+
 # ════════════════════════════════════════════════════════════
 #  CARRITO
 # ════════════════════════════════════════════════════════════
- 
+
 @app.route('/agregar_carrito/<int:id>')
 def agregarCarrito(id):
     if 'carrito' not in session:
@@ -69,8 +68,8 @@ def agregarCarrito(id):
     carrito[str(id)] = carrito.get(str(id), 0) + 1
     session['carrito'] = carrito
     return redirect('/')
- 
- 
+
+
 @app.route('/eliminar_carrito/<int:id>')
 def eliminarCarrito(id):
     carrito = session.get('carrito', {})
@@ -82,8 +81,8 @@ def eliminarCarrito(id):
             del carrito[key]
     session['carrito'] = carrito
     return redirect('/carrito')
- 
- 
+
+
 @app.route('/carrito')
 def carrito():
     ids = session.get('carrito', {})
@@ -101,25 +100,25 @@ def carrito():
         total += perfume.precio * cantidad
     cantidad_carrito = sum(ids.values())
     return render_template('carrito.html', perfumes=perfumes, total=total, cantidad_carrito=cantidad_carrito)
- 
- 
+
+
 @app.route('/finalizar_pedido')
 def finalizarPedido():
     carrito = session.get('carrito', {})
     cantidad_carrito = sum(carrito.values())
     return render_template('finalizar_pedido.html', cantidad_carrito=cantidad_carrito)
- 
- 
+
+
 @app.route('/enviar_whatsapp', methods=['POST'])
 def enviarWhatsapp():
     cliente  = request.form['cliente']
     telefono = request.form['telefono']
     carrito  = session.get('carrito', {})
- 
+
     mensaje  = "🛍️ Pedido - Tester Edition\n\n"
     mensaje += f"Cliente: {cliente}\n"
     mensaje += f"Telefono: {telefono}\n\n"
- 
+
     total = 0
     for id_perfume, cantidad in carrito.items():
         perfume  = Perfume.query.get(int(id_perfume))
@@ -130,18 +129,18 @@ def enviarWhatsapp():
         if perfume.stock <= 0:
             perfume.stock   = 0
             perfume.agotado = True
- 
+
     db.session.commit()
     mensaje += f"\nTOTAL: ${int(total)}"
     numero_negocio = "5492646315621"
     session.pop('carrito', None)
     return redirect(f"https://wa.me/{numero_negocio}?text={quote(mensaje)}")
- 
- 
+
+
 # ════════════════════════════════════════════════════════════
 #  ADMIN — LOGIN / LOGOUT
 # ════════════════════════════════════════════════════════════
- 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -153,42 +152,37 @@ def login():
             return redirect('/panel')
         flash('Datos incorrectos')
     return render_template('login.html', cantidad_carrito=0)
- 
- 
+
+
 @app.route('/logout')
 def logout():
     session.pop('admin', None)
     return redirect('/')
- 
- 
+
+
 # ════════════════════════════════════════════════════════════
 #  ADMIN — PANEL
 # ════════════════════════════════════════════════════════════
- 
+
 @app.route('/panel')
 def panel():
     if 'admin' not in session:
         return redirect('/login')
     perfumes = Perfume.query.order_by(Perfume.categoria, Perfume.nombre).all()
     return render_template('panel_admin.html', perfumes=perfumes, cantidad_carrito=0)
- 
- 
+
+
 @app.route('/agregar_perfume', methods=['GET', 'POST'])
 def agregarPerfume():
     if 'admin' not in session:
         return redirect('/login')
- 
+
     if request.method == 'POST':
-        imagen = request.files['imagen']
-        if not imagen or imagen.filename == '':
-            flash('Tenés que elegir una imagen')
+        nombre_imagen = request.form.get('imagen_nombre', '').strip()
+        if not nombre_imagen:
+            flash('Tenés que escribir el nombre de la imagen')
             return redirect('/agregar_perfume')
- 
-        nombre_imagen = secure_filename(imagen.filename)
-        ruta = os.path.join(app.root_path, 'static', 'img')
-        os.makedirs(ruta, exist_ok=True)
-        imagen.save(os.path.join(ruta, nombre_imagen))
- 
+
         perfume = Perfume(
             nombre       = request.form['nombre'],
             categoria    = request.form['categoria'],
@@ -203,17 +197,17 @@ def agregarPerfume():
         db.session.add(perfume)
         db.session.commit()
         return redirect('/panel')
- 
+
     return render_template('agregar_perfume.html', cantidad_carrito=0)
- 
- 
+
+
 @app.route('/editar_perfume/<int:id>', methods=['GET', 'POST'])
 def editarPerfume(id):
     if 'admin' not in session:
         return redirect('/login')
- 
+
     perfume = Perfume.query.get_or_404(id)
- 
+
     if request.method == 'POST':
         perfume.nombre       = request.form['nombre']
         perfume.categoria    = request.form['categoria']
@@ -223,22 +217,17 @@ def editarPerfume(id):
         perfume.nota_fondo   = request.form['fondo']
         perfume.stock        = int(request.form['stock'])
         perfume.agotado      = perfume.stock <= 0
- 
-        # Imagen opcional — solo actualiza si se subió una nueva
-        imagen = request.files.get('imagen')
-        if imagen and imagen.filename != '':
-            nombre_imagen = secure_filename(imagen.filename)
-            ruta = os.path.join(app.root_path, 'static', 'img')
-            os.makedirs(ruta, exist_ok=True)
-            imagen.save(os.path.join(ruta, nombre_imagen))
-            perfume.imagen = nombre_imagen
- 
+
+        imagen_nombre = request.form.get('imagen_nombre', '').strip()
+        if imagen_nombre:
+            perfume.imagen = imagen_nombre
+
         db.session.commit()
         return redirect('/panel')
- 
+
     return render_template('editar_perfume.html', perfume=perfume, cantidad_carrito=0)
- 
- 
+
+
 @app.route('/eliminar_perfume/<int:id>')
 def eliminarPerfume(id):
     if 'admin' not in session:
@@ -247,24 +236,23 @@ def eliminarPerfume(id):
     db.session.delete(perfume)
     db.session.commit()
     return redirect('/panel')
- 
- 
+
+
 # ════════════════════════════════════════════════════════════
 #  UTILIDADES
 # ════════════════════════════════════════════════════════════
- 
+
 @app.route('/limpiar_sesion')
 def limpiarSesion():
     session.clear()
     return redirect('/')
- 
- 
+
+
 # ════════════════════════════════════════════════════════════
 #  DATOS INICIALES
 # ════════════════════════════════════════════════════════════
- 
+
 PERFUMES_INICIALES = [
-    # ── TESTER (diseñador con tester) ─────────────────────────
     ("Toy Boy Moschino Tester 100ml",                 "Tester",   125000),
     ("Blue Jeans Tester 75ml",                        "Tester",    65000),
     ("Sauvage Dior EDP 100ml Tester",                 "Tester",   210000),
@@ -283,14 +271,11 @@ PERFUMES_INICIALES = [
     ("One Million Elixir 100ml",                      "Tester",   210000),
     ("Dolce & Gabbana The One Tester 100ml",          "Tester",   140000),
     ("Dolce & Gabbana K Tester 100ml",                "Tester",   120000),
-    # Tester de nicho
     ("Naxos Xerjoff Tester 100ml",                    "Tester",   400000),
     ("Naxos Erba Gold Tester 100ml",                  "Tester",   380000),
     ("Montale Paris Tester 100ml",                    "Tester",   150000),
     ("Mancera Wild Leather Tester 100ml",             "Tester",   180000),
     ("Montale Paris Boise Fruite Tester 100ml",       "Tester",   195000),
- 
-    # ── DISEÑADOR (sellados / regulares) ──────────────────────
     ("Ferrari 200ml",                                 "Diseñador",  70000),
     ("Calvin Klein Be 100ml Sellado",                 "Diseñador",  70000),
     ("CK Be 100ml",                                   "Diseñador",  80000),
@@ -305,13 +290,9 @@ PERFUMES_INICIALES = [
     ("Azzaro The Most Wanted Parfum Sellado 100ml",   "Diseñador", 175000),
     ("Valentino Uomo Born in Roma Sellado 100ml",     "Diseñador", 210000),
     ("Stronger With You Sellado 100ml",               "Diseñador", 220000),
- 
-    # ── NICHO (sellados / regulares) ──────────────────────────
     ("Mancera Cedrat Boise 120ml",                    "Nicho",     210000),
     ("Mancera Instant Crush 120ml",                   "Nicho",     205000),
     ("Montale Arabians Tonka 100ml",                  "Nicho",     235000),
- 
-    # ── ARABES ────────────────────────────────────────────────
     ("Mandarin Sky 100ml",                            "Arabes",     65000),
     ("Mandarin Sky Elixir 100ml",                     "Arabes",     90000),
     ("Club de Nuit Intense Man 100ml",                "Arabes",     70000),
@@ -413,10 +394,10 @@ PERFUMES_INICIALES = [
     ("Bareek 100ml",                                  "Arabes",     50000),
     ("Hawas Malibu 100ml",                            "Arabes",     85000),
 ]
+
 with app.app_context():
     db.create_all()
 
-    # Crear admin si no existe
     if Administrador.query.count() == 0:
         admin = Administrador(
             correo='julian04aacosta@gmail.com',
@@ -425,7 +406,6 @@ with app.app_context():
         db.session.add(admin)
         db.session.commit()
 
-    # Cargar perfumes iniciales si la tabla está vacía
     if Perfume.query.count() == 0:
         for nombre, categoria, precio in PERFUMES_INICIALES:
             perfume = Perfume(
@@ -440,8 +420,7 @@ with app.app_context():
                 imagen=None
             )
             db.session.add(perfume)
-
         db.session.commit()
- 
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

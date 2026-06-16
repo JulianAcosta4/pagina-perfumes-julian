@@ -5,8 +5,8 @@
     <span class="s-label">Panel Admin</span>
     <h2>Editar Perfume</h2>
     <div class="ornament"><span class="ornament-line"></span><span class="ornament-diamond"></span></div>
- 
-    <form method="POST" enctype="multipart/form-data">
+
+    <form method="POST">
         <div class="form-grid">
             <div class="form-group full">
                 <label>Nombre</label>
@@ -52,14 +52,14 @@
                 {% endif %}
             </div>
             <div class="form-group full">
-                <label>Nueva imagen (opcional)</label>
-                <input type="file" name="imagen" accept="image/*">
-                <p style="color:var(--muted);font-size:0.75rem;margin-top:0.3rem;">Dejá vacío para mantener la imagen actual.</p>
+                <label>Nombre de imagen (opcional)</label>
+                <input type="text" name="imagen_nombre" placeholder="ej: asad.webp" value="{{ perfume.imagen or '' }}">
+                <p style="color:var(--muted);font-size:0.75rem;margin-top:0.3rem;">Escribí el nombre exacto del archivo en static/img/. Dejá vacío para mantener la imagen actual.</p>
             </div>
         </div>
         <button type="submit" class="btn-submit">Guardar Cambios</button>
     </form>
- 
+
     <a href="/panel" class="form-back">← Volver al panel</a>
 </div>
 {% endblock %}

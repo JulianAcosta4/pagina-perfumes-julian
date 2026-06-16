@@ -5,7 +5,7 @@
     <span class="s-label">Panel Admin</span>
     <h2>Nuevo Perfume</h2>
     <div class="ornament"><span class="ornament-line"></span><span class="ornament-diamond"></span></div>
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST">
         <div class="form-grid">
             <div class="form-group full">
                 <label>Nombre</label>
@@ -42,9 +42,10 @@
                 <label>Stock</label>
                 <input type="number" name="stock" value="1">
             </div>
-            <div class="form-group">
-                <label>Imagen</label>
-                <input type="file" name="imagen" accept="image/*" required>
+            <div class="form-group full">
+                <label>Nombre de imagen</label>
+                <input type="text" name="imagen_nombre" placeholder="ej: asad.webp" required>
+                <p style="color:var(--muted);font-size:0.75rem;margin-top:0.3rem;">Subí la imagen primero a GitHub en static/img/ y luego escribí el nombre exacto aquí.</p>
             </div>
         </div>
         <button type="submit" class="btn-submit">Guardar Perfume</button>
