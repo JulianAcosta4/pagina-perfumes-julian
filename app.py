@@ -418,7 +418,7 @@ PERFUMES_INICIALES = [
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
- 
+
         # Admin
         if Administrador.query.count() == 0:
             admin = Administrador(
@@ -441,4 +441,4 @@ if __name__ == '__main__':
             db.session.commit()
             print(f"✅ {len(PERFUMES_INICIALES)} perfumes cargados.")
  
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
