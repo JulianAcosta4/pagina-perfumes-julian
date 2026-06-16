@@ -413,32 +413,35 @@ PERFUMES_INICIALES = [
     ("Bareek 100ml",                                  "Arabes",     50000),
     ("Hawas Malibu 100ml",                            "Arabes",     85000),
 ]
- 
+with app.app_context():
+    db.create_all()
+
+    # Crear admin si no existe
+    if Administrador.query.count() == 0:
+        admin = Administrador(
+            correo='julian04aacosta@gmail.com',
+            clave=generate_password_hash('PachuPerfumes')
+        )
+        db.session.add(admin)
+        db.session.commit()
+
+    # Cargar perfumes iniciales si la tabla está vacía
+    if Perfume.query.count() == 0:
+        for nombre, categoria, precio in PERFUMES_INICIALES:
+            perfume = Perfume(
+                nombre=nombre,
+                categoria=categoria,
+                precio=precio,
+                nota_salida='',
+                nota_corazon='',
+                nota_fondo='',
+                stock=1,
+                agotado=False,
+                imagen=None
+            )
+            db.session.add(perfume)
+
+        db.session.commit()
  
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-
-        # Admin
-        if Administrador.query.count() == 0:
-            admin = Administrador(
-                correo='julian04aacosta@gmail.com',
-                clave=generate_password_hash('PachuPerfumes')
-            )
-            db.session.add(admin)
-            db.session.commit()
-            print("✅ Admin creado.")
- 
-        # Perfumes iniciales (solo si la tabla está vacía)
-        if Perfume.query.count() == 0:
-            for nombre, categoria, precio in PERFUMES_INICIALES:
-                p = Perfume(
-                    nombre=nombre, categoria=categoria, precio=precio,
-                    nota_salida='', nota_corazon='', nota_fondo='',
-                    stock=1, agotado=False, imagen=None
-                )
-                db.session.add(p)
-            db.session.commit()
-            print(f"✅ {len(PERFUMES_INICIALES)} perfumes cargados.")
- 
     app.run(host='0.0.0.0', port=5000)
